@@ -1,0 +1,48 @@
+diff -ru before/graphs/EventGraph__EventGraph.txt after/graphs/EventGraph__EventGraph.txt
+--- before/graphs/EventGraph__EventGraph.txt
++++ after/graphs/EventGraph__EventGraph.txt
+@@ -28,6 +28,8 @@
+ // COMMENT "batteries" covers: GetComponentByClass, SetFullBlast
+ // COMMENT "graph timer" covers: Array_Set, CustomEvent_8, Graph Phase Shift, IfThenElse_25, K2_SetTimerDelegate, MakeLiteralDouble, Recreate Power Graph
+ // COMMENT "hoverpack" covers: 
++// COMMENT "Comment" covers: Array_LastIndex, FClamp, GetArrayItem_1, GetProducedPoints, Multiply_DoubleDouble, SafeDivide
++// COMMENT "Comment" covers: Array_LastIndex, FClamp, GetArrayItem_4, GetProducedPoints, Multiply_DoubleDouble, SafeDivide
+ 
+ EVENT Initial loading Visibility(bNewVisibility:bool)
+   ForEachLoop#13(Array=Props.GetChildrenComponents(bIncludeAllDescendants=true))
+@@ -205,9 +207,12 @@
+           Combined Production = 0.0
+           ForEachLoop#15(Array=TrueGrid_Global.Power Info Production)
+             [LoopBody]
+-              Combined Production = (Combined Production + $ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats()))])
++              Combined Production = (Combined Production + ($ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$GetPowerCircuit#132.ReturnValue.GetStats()))] * FClamp(Value=SafeDivide(A=Final Production Value, B=$GetPowerCircuit#132.ReturnValue.GetProducedPoints(stats=$GetStats#135.out_stats)[Array_LastIndex(TargetArray=$GetProducedPoints#6.out_points)]), Min=0.0, Max=1.0)))
++                  where $GetPowerCircuit#132 = $ForEachLoop#15.Array Element.GetPowerCircuit()
++                  where $GetStats#135 = $ForEachLoop#15.Array Element.GetPowerCircuit().GetStats()
++                  where $GetProducedPoints#6 = $ForEachLoop#15.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())
+         [then_1]
+-          Combined Production = FClamp(Value=(Combined Production * True Grid Subsystem.Conversion % Penalty * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost), Min=SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power), Max=(Combined Production * True Grid Subsystem.Conversion % Penalty * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost))
++          Combined Production = FClamp(Value=(Combined Production * (2.0 - True Grid Subsystem.Conversion % Penalty) * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost), Min=SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power), Max=(Combined Production * (2.0 - True Grid Subsystem.Conversion % Penalty) * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost))
+           Minimum Power = SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power)
+     [then_4]
+       -> continues at DelayUntilNextTick (shown under ReceiveBeginPlay)
+@@ -279,7 +284,10 @@
+   Combined Production = 0.0
+   ForEachLoop#12(Array=TrueGrid_Global.Power Info Production)
+     [LoopBody]
+-      Combined Production = (Combined Production + $ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats()))])
++      Combined Production = (Combined Production + ($ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$GetPowerCircuit#50.ReturnValue.GetStats()))] * FClamp(Value=SafeDivide(A=Final Production Value, B=$GetPowerCircuit#50.ReturnValue.GetProducedPoints(stats=$GetStats#112.out_stats)[Array_LastIndex(TargetArray=$GetProducedPoints#17.out_points)]), Min=0.0, Max=1.0)))
++          where $GetPowerCircuit#50 = $ForEachLoop#12.Array Element.GetPowerCircuit()
++          where $GetStats#112 = $ForEachLoop#12.Array Element.GetPowerCircuit().GetStats()
++          where $GetProducedPoints#17 = $ForEachLoop#12.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())
+     [Completed]
+       Inductor Power = Lerp(A=Last Smoothed Value, B=Combined Production, Alpha=SafeDivide(A=MakeLiteralDouble(Value=1.000000), B=((Grid Inductors + MakeLiteralDouble(Value=1.000000)) * (Grid Inductors + MakeLiteralDouble(Value=1.000000)) * (Grid Inductors + MakeLiteralDouble(Value=1.000000)))))
+ 
+diff -ru before/graphs.txt after/graphs.txt
+--- before/graphs.txt
++++ after/graphs.txt
+@@ -1,4 +1,4 @@
+-  EventGraph   EventGraph  (418 nodes)
++  EventGraph   EventGraph  (435 nodes)
+   Function     UserConstructionScript  (1 nodes)
+   Function     Setup Power Info  (15 nodes)
+   Function     CopySettings  (7 nodes)

@@ -35,4 +35,5 @@ patch for a branch off upstream; `patches/` itself stays in the fork.
 <!-- bp-patch:index -->
 | Patch | Rev | Asset | Applied | Status |
 |---|---|---|---|---|
+| [converter-draw-share](converter-draw-share/) Converters pay only for their share, and Conversion Loss costs power | 1 | `Build_TrueGridMachine_Base` | rev 1, 2026-11-08 | - |
 <!-- /bp-patch:index -->
