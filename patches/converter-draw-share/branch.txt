@@ -1,0 +1,4 @@
+branch=converter-draw-share-1.3.5
+commit=d7b986cd054b5eb99246af0657b8ce0a97178c46
+base=main
+files=`Content/Buildables/-Shared/Build_TrueGridMachine_Base.uasset`

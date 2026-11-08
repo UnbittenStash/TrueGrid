@@ -145,3 +145,5 @@ Same chain as above, patched build, about 5–10 s per reading:
 ---
 
 Review aids: [diff.txt](https://github.com/UnbittenStash/TrueGrid/blob/main/patches/converter-draw-share/diff.txt) (pseudo-code diff of the Blueprint graph); [editor.md](https://github.com/UnbittenStash/TrueGrid/blob/main/patches/converter-draw-share/editor.md) (the same change as Unreal Editor steps).
+
+The patched asset is on branch [`converter-draw-share-1.3.5`](https://github.com/UnbittenStash/TrueGrid/tree/converter-draw-share-1.3.5) of my fork: the upstream `main` branch plus one commit ([d7b986c](https://github.com/UnbittenStash/TrueGrid/commit/d7b986cd054b5eb99246af0657b8ce0a97178c46)) that changes only `Content/Buildables/-Shared/Build_TrueGridMachine_Base.uasset`. Please merge or cherry-pick that branch alone, not my fork's `main`.
