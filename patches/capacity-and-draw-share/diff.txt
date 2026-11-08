@@ -1,0 +1,71 @@
+diff -ru before/graphs/EventGraph__EventGraph.txt after/graphs/EventGraph__EventGraph.txt
+--- before/graphs/EventGraph__EventGraph.txt
++++ after/graphs/EventGraph__EventGraph.txt
+@@ -1,10 +1,10 @@
+ // COMMENT "Spawn in child to control the voltage transformation across different circuits" covers: BooleanOR, BreakStruct_2, DelayUntilNextTick, DoOnce, EqualEqual_DoubleDouble, Event_0, ExecutionSequence_4, Get Building Info, GetObjectClass, Greater_DoubleDouble, IfThenElse_7, Machine Max Power Conversion, PostLoadGame, Self_2, Start Update Timer, WaitForValidSubsystems
+ // COMMENT "Dynamic Power" covers: BooleanAND, Conv_IntToDouble, Conv_TextToString, CustomEvent_0, Event_10, FClamp, Factory_ReceiveTick, ForEachLoop, FormatText_0, GetCircuitID, GetPowerCircuit, Greater_IntInt, IfThenElse_0, IfThenElse_11, LogDisplay, SafeDivide, SelectFloat, SetTargetConsumption, Update Power Stats
+ // COMMENT "Built into the dynamic power is proper fuse priority.  / No power when first built or when consumption somehow gets 0 power / if consumer fuse breaks, production fuse breaks / if production fuse breaks, consumer remains open." covers: 
+-// COMMENT "get all buildings in circuit, find if they are running, add phase shift value of all running machines, compare to max capacity. set %" covers: Add_DoubleDouble, Array_LastIndex, Check Circuit has Power, Combined Production, Conv_IntToDouble, CustomEvent_10, CustomEvent_2, Delay, ExecutionSequence_10, ExecutionSequence_3, ExecutionSequence_5, FClamp, Final Production Value, ForEachLoop, GetArrayItem_2, GetArrayItem_3, GetConsumedPoints, Get
++// COMMENT "get all buildings in circuit, find if they are running, add phase shift value of all running machines, compare to max capacity. set %" covers: Add_DoubleDouble, Array_LastIndex, Check Circuit has Power, Combined Production, Conv_IntToDouble, CustomEvent_10, CustomEvent_2, Delay, ExecutionSequence_10, ExecutionSequence_3, ExecutionSequence_5, FClamp, Final Production Value, ForEachLoop, GetArrayItem_3, GetConsumedPoints, GetPowerCircuit, Ge
+ // COMMENT "phase shift reduces power conversion by set % / each machine phase shift # is in filter as a percent / as more machines are added, phase shift reduces total power production" covers: FClamp, Phase Shift % Penalty, SafeDivide, Subtract_DoubleDouble
+ // COMMENT "phase shift" covers: Array_Set, BooleanAND, CustomEvent_8, Delay, ExecutionSequence_13, Graph Phase Shift, IfThenElse_2, IfThenElse_25, K2_SetTimerDelegate, MakeLiteralDouble, Phase Shift, RandomFloatInRange, Recreate Power Graph, WaitForValidSubsystems
+-// COMMENT "sum total of all power consumed across all power infos" covers: Add_DoubleDouble, Array_LastIndex, Check Circuit has Power, ForEachLoop, GetArrayItem_2, GetPowerCircuit, GetProducedPoints, GetStats, IfThenElse_5, IncrementInt, Stop Power Production, Upstream Production Capacity
++// COMMENT "sum total of all power consumed across all power infos" covers: Add_DoubleDouble, Check Circuit has Power, ForEachLoop, GetPowerCircuit, GetPowerProductionCapacity, IfThenElse_5, IncrementInt, Stop Power Production, Upstream Production Capacity
+ // COMMENT "Normal Machines" covers: BooleanAND, Conv_IntToDouble, Conv_TextToString, CustomEvent_0, FClamp, FormatText_0, Greater_IntInt, LogDisplay, SafeDivide, SelectFloat, SetTargetConsumption
+ // COMMENT "mupltiple outputs" covers: ForEachLoop, GetCircuitID, GetPowerCircuit, Greater_IntInt, IfThenElse_11, Update Power Stats
+ // COMMENT "check if machine can produce (determined if any consumption circuits are valid" covers: Add_DoubleDouble, Conv_IntToDouble, ExecutionSequence_5, FClamp, Final Production Value, ForEachLoop, Macro, Multiply_DoubleDouble, SafeDivide, SelectFloat, Subtract_DoubleDouble
+@@ -28,6 +28,9 @@
+ // COMMENT "batteries" covers: GetComponentByClass, SetFullBlast
+ // COMMENT "graph timer" covers: Array_Set, CustomEvent_8, Graph Phase Shift, IfThenElse_25, K2_SetTimerDelegate, MakeLiteralDouble, Recreate Power Graph
+ // COMMENT "hoverpack" covers: 
++// COMMENT "Comment" covers: Add_DoubleDouble, Check Circuit has Power, GetPowerCircuit, GetPowerProductionCapacity
++// COMMENT "Comment" covers: Array_LastIndex, FClamp, GetArrayItem_1, GetProducedPoints, Multiply_DoubleDouble, SafeDivide
++// COMMENT "Comment" covers: Array_LastIndex, FClamp, GetArrayItem_4, GetProducedPoints, Multiply_DoubleDouble, SafeDivide
+ 
+ EVENT Initial loading Visibility(bNewVisibility:bool)
+   ForEachLoop#13(Array=Props.GetChildrenComponents(bIncludeAllDescendants=true))
+@@ -186,7 +189,7 @@
+         [LoopBody]
+           if Check Circuit has Power(Power Info Ref=$ForEachLoop#7.Array Element)
+             [then]
+-              Upstream Production Capacity = (Upstream Production Capacity + $ForEachLoop#7.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#7.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#7.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#7.Array Element.GetPowerCircuit().GetStats()))])
++              Upstream Production Capacity = (Upstream Production Capacity + $ForEachLoop#7.Array Element.GetPowerCircuit().GetPowerProductionCapacity())
+               Stop Power Production = false
+               IncrementInt#11(Value=Valid Consumption Circuits) [ ]
+     [then_2]
+@@ -205,9 +208,12 @@
+           Combined Production = 0.0
+           ForEachLoop#15(Array=TrueGrid_Global.Power Info Production)
+             [LoopBody]
+-              Combined Production = (Combined Production + $ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats()))])
++              Combined Production = (Combined Production + ($ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#15.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$GetPowerCircuit#132.ReturnValue.GetStats()))] * FClamp(Value=SafeDivide(A=Final Production Value, B=$GetPowerCircuit#132.ReturnValue.GetProducedPoints(stats=$GetStats#135.out_stats)[Array_LastIndex(TargetArray=$GetProducedPoints#7.out_points)]), Min=0.0, Max=1.0)))
++                  where $GetPowerCircuit#132 = $ForEachLoop#15.Array Element.GetPowerCircuit()
++                  where $GetStats#135 = $ForEachLoop#15.Array Element.GetPowerCircuit().GetStats()
++                  where $GetProducedPoints#7 = $ForEachLoop#15.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#15.Array Element.GetPowerCircuit().GetStats())
+         [then_1]
+-          Combined Production = FClamp(Value=(Combined Production * True Grid Subsystem.Conversion % Penalty * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost), Min=SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power), Max=(Combined Production * True Grid Subsystem.Conversion % Penalty * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost))
++          Combined Production = FClamp(Value=(Combined Production * (2.0 - True Grid Subsystem.Conversion % Penalty) * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost), Min=SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power), Max=(Combined Production * (2.0 - True Grid Subsystem.Conversion % Penalty) * (MakeLiteralDouble(Value=2.000000) - Distance % Penalty) * Alien Power Boost))
+           Minimum Power = SelectFloat(A=(True Grid Subsystem.Minimum Voltage Threshold % * Machine Max Power Conversion), B=0.0, bPickA=Uses Minimum Power)
+     [then_4]
+       -> continues at DelayUntilNextTick (shown under ReceiveBeginPlay)
+@@ -279,7 +285,10 @@
+   Combined Production = 0.0
+   ForEachLoop#12(Array=TrueGrid_Global.Power Info Production)
+     [LoopBody]
+-      Combined Production = (Combined Production + $ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats()))])
++      Combined Production = (Combined Production + ($ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())[Array_LastIndex(TargetArray=$ForEachLoop#12.Array Element.GetPowerCircuit().GetConsumedPoints(stats=$GetPowerCircuit#50.ReturnValue.GetStats()))] * FClamp(Value=SafeDivide(A=Final Production Value, B=$GetPowerCircuit#50.ReturnValue.GetProducedPoints(stats=$GetStats#112.out_stats)[Array_LastIndex(TargetArray=$GetProducedPoints#25.out_points)]), Min=0.0, Max=1.0)))
++          where $GetPowerCircuit#50 = $ForEachLoop#12.Array Element.GetPowerCircuit()
++          where $GetStats#112 = $ForEachLoop#12.Array Element.GetPowerCircuit().GetStats()
++          where $GetProducedPoints#25 = $ForEachLoop#12.Array Element.GetPowerCircuit().GetProducedPoints(stats=$ForEachLoop#12.Array Element.GetPowerCircuit().GetStats())
+     [Completed]
+       Inductor Power = Lerp(A=Last Smoothed Value, B=Combined Production, Alpha=SafeDivide(A=MakeLiteralDouble(Value=1.000000), B=((Grid Inductors + MakeLiteralDouble(Value=1.000000)) * (Grid Inductors + MakeLiteralDouble(Value=1.000000)) * (Grid Inductors + MakeLiteralDouble(Value=1.000000)))))
+ 
+diff -ru before/graphs.txt after/graphs.txt
+--- before/graphs.txt
++++ after/graphs.txt
+@@ -1,4 +1,4 @@
+-  EventGraph   EventGraph  (418 nodes)
++  EventGraph   EventGraph  (433 nodes)
+   Function     UserConstructionScript  (1 nodes)
+   Function     Setup Power Info  (15 nodes)
+   Function     CopySettings  (7 nodes)

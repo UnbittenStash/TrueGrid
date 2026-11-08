@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "tool": "bp-patch",
+  "assets": {
+    "/TrueGrid/Buildables/-Shared/Build_TrueGridMachine_Base": {
+      "pristine": {
+        "file": "patches/_pristine/Buildables/-Shared/Build_TrueGridMachine_Base.uasset",
+        "sha256": "e61bac89e71de418a4d6ab366f5518114a9468b7d2357b715edc4d8f5ce3bfef",
+        "set": "2026-11-08",
+        "from": "run patch-20261108-134002-capacity-and-draw-share backup"
+      },
+      "patches": [
+        {
+          "id": "capacity-and-draw-share",
+          "rev": 1,
+          "applied": "2026-11-08",
+          "run": "patch-20261108-134002-capacity-and-draw-share",
+          "result_sha256": "fc4bbb8a3d5e1ef24dd877ab288253f442f17897d2a03bae22e7b158f0dd1755"
+        }
+      ]
+    }
+  }
+}
